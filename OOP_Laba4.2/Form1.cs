@@ -20,6 +20,7 @@ namespace OOP_Laba4._2
             InitializeComponent();
 
             model = new Model();
+            model.form1 = this;
             model.ModelHandler += new System.EventHandler(this.UpdateValuesFromModel);
             model.LoadSettings();
             this.FormClosing += Form1Closing;
@@ -38,6 +39,18 @@ namespace OOP_Laba4._2
             trackBar2.Value = model.getB();
             trackBar3.Value = model.getC();
         }
+        public void DisableValueChanged()
+        {
+            numericUpDown1.ValueChanged -= numericUpDown1_ValueChanged;
+            numericUpDown2.ValueChanged -= numericUpDown2_ValueChanged;
+            numericUpDown3.ValueChanged -= numericUpDown3_ValueChanged;
+        }
+        public void EnableValueChanged()
+        {
+            numericUpDown1.ValueChanged += numericUpDown1_ValueChanged;
+            numericUpDown2.ValueChanged += numericUpDown2_ValueChanged;
+            numericUpDown3.ValueChanged += numericUpDown3_ValueChanged;
+        }
         private void Form1Closing(object sender, FormClosingEventArgs e) // Сохранение данных в настройках приложения
         {
             Properties.Settings.Default.A = model.getA();
@@ -50,7 +63,7 @@ namespace OOP_Laba4._2
         {
             if (e.KeyCode == Keys.Enter)
             {
-                if (int.TryParse(textBox1.Text, out int result)) { model.changeA(result, sender); }
+                if (int.TryParse(textBox1.Text, out int result)) { model.changeA(result); }
                 else { model.ModelHandler.Invoke(this, null); }
             }
         }
@@ -59,7 +72,7 @@ namespace OOP_Laba4._2
         {
             if (e.KeyCode == Keys.Enter)
             {
-                if (int.TryParse(textBox2.Text, out int result)) { model.changeB(result, sender); }
+                if (int.TryParse(textBox2.Text, out int result)) { model.changeB(result); }
                 else { model.ModelHandler.Invoke(this, null); }
             }
         }
@@ -68,38 +81,38 @@ namespace OOP_Laba4._2
         {
             if (e.KeyCode == Keys.Enter)
             {
-                if (int.TryParse(textBox3.Text, out int result)) { model.changeC(result, sender); }
+                if (int.TryParse(textBox3.Text, out int result)) { model.changeC(result); }
                 else { model.ModelHandler.Invoke(this, null); }
             }
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            model.changeA(Decimal.ToInt32(numericUpDown1.Value), sender);
+            model.changeA(Decimal.ToInt32(numericUpDown1.Value));
         }
 
         private void numericUpDown2_ValueChanged(object sender, EventArgs e)
         {
-            model.changeB(Decimal.ToInt32(numericUpDown2.Value), sender);
+            model.changeB(Decimal.ToInt32(numericUpDown2.Value));
         }
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
         {
-            model.changeC(Decimal.ToInt32(numericUpDown3.Value), sender);
+            model.changeC(Decimal.ToInt32(numericUpDown3.Value));
         }
         private void trackBar1_MouseUp(object sender, MouseEventArgs e)
         {
-            model.changeA(trackBar1.Value, sender);
+            model.changeA(trackBar1.Value);
         }
 
         private void trackBar2_MouseUp(object sender, MouseEventArgs e)
         {
-            model.changeB(trackBar2.Value, sender);
+            model.changeB(trackBar2.Value);
         }
 
         private void trackBar3_MouseUp(object sender, MouseEventArgs e)
         {
-            model.changeC(trackBar3.Value, sender);
+            model.changeC(trackBar3.Value);
         }
     }
     class Model
@@ -108,17 +121,18 @@ namespace OOP_Laba4._2
         private int B = 50;
         private int C = 100;
         public System.EventHandler ModelHandler;
+        public Form1 form1;
 
         public void LoadSettings() // Загрузка данных из настроек
         {
             A = Properties.Settings.Default.A;
             B = Properties.Settings.Default.B;
             C = Properties.Settings.Default.C;
-            ModelHandler -= new System.EventHandler(this.UpdateValuesFromModel); // Нужно как-то сделать так, чтобы при вызове LoadSettings, изменение NumericUpDown1/2/3 не вызывало событие ValueChanged
+            form1.DisableValueChanged();
             ModelHandler.Invoke(this, null);
-            ModelHandler += new System.EventHandler(this.UpdateValuesFromModel);
+            form1.EnableValueChanged();
         }
-        public void changeA(int newA, object sender) // Разрешающее поведение
+        public void changeA(int newA) // Разрешающее поведение
         {
             if (newA >= 0 && newA <= 100)
             {
@@ -132,9 +146,9 @@ namespace OOP_Laba4._2
             }
             else if (newA < 0) { A = 0; }
             else { A = 100; }
-            if (sender.GetType() != typeof(object)) { ModelHandler.Invoke(this, null); }
+            ModelHandler.Invoke(this, null);
         }
-        public void changeB(int newB, object sender) 
+        public void changeB(int newB) 
         {
             if (newB >= 0 && newB <= 100)
             {
@@ -151,9 +165,9 @@ namespace OOP_Laba4._2
                     B = C;
                 }
             }
-            if (sender.GetType() != typeof(object)) { ModelHandler.Invoke(this, null); }
+            ModelHandler.Invoke(this, null);
         }
-        public void changeC(int newC, object sender)
+        public void changeC(int newC)
         {
             if (newC >= 0 && newC <= 100)
             {
@@ -167,7 +181,7 @@ namespace OOP_Laba4._2
             }
             else if (newC < 0) { C = 0; }
             else { C = 100; }
-            if (sender.GetType() != typeof(object)) { ModelHandler.Invoke(this, null); }
+            ModelHandler.Invoke(this, null);
         }
         public int getA() { return A; }
         public int getB() { return B; }

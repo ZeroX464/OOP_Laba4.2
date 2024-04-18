@@ -50,7 +50,8 @@ namespace OOP_Laba4._2
         {
             if (e.KeyCode == Keys.Enter)
             {
-                model.changeA(int.Parse(textBox1.Text));
+                if (int.TryParse(textBox1.Text, out int result)) { model.changeA(result, sender); }
+                else { model.ModelHandler.Invoke(this, null); }
             }
         }
 
@@ -58,7 +59,8 @@ namespace OOP_Laba4._2
         {
             if (e.KeyCode == Keys.Enter)
             {
-                model.changeB(int.Parse(textBox2.Text));
+                if (int.TryParse(textBox2.Text, out int result)) { model.changeB(result, sender); }
+                else { model.ModelHandler.Invoke(this, null); }
             }
         }
 
@@ -66,37 +68,38 @@ namespace OOP_Laba4._2
         {
             if (e.KeyCode == Keys.Enter)
             {
-                model.changeC(int.Parse(textBox3.Text));
+                if (int.TryParse(textBox3.Text, out int result)) { model.changeC(result, sender); }
+                else { model.ModelHandler.Invoke(this, null); }
             }
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            model.changeA(Decimal.ToInt32(numericUpDown1.Value));
+            model.changeA(Decimal.ToInt32(numericUpDown1.Value), sender);
         }
 
         private void numericUpDown2_ValueChanged(object sender, EventArgs e)
         {
-            model.changeB(Decimal.ToInt32(numericUpDown2.Value));
+            model.changeB(Decimal.ToInt32(numericUpDown2.Value), sender);
         }
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
         {
-            model.changeC(Decimal.ToInt32(numericUpDown3.Value));
+            model.changeC(Decimal.ToInt32(numericUpDown3.Value), sender);
         }
         private void trackBar1_MouseUp(object sender, MouseEventArgs e)
         {
-            model.changeA(trackBar1.Value);
+            model.changeA(trackBar1.Value, sender);
         }
 
         private void trackBar2_MouseUp(object sender, MouseEventArgs e)
         {
-            model.changeB(trackBar2.Value);
+            model.changeB(trackBar2.Value, sender);
         }
 
         private void trackBar3_MouseUp(object sender, MouseEventArgs e)
         {
-            model.changeC(trackBar3.Value);
+            model.changeC(trackBar3.Value, sender);
         }
     }
     class Model
@@ -105,14 +108,17 @@ namespace OOP_Laba4._2
         private int B = 50;
         private int C = 100;
         public System.EventHandler ModelHandler;
+
         public void LoadSettings() // Загрузка данных из настроек
         {
             A = Properties.Settings.Default.A;
             B = Properties.Settings.Default.B;
             C = Properties.Settings.Default.C;
+            ModelHandler -= new System.EventHandler(this.UpdateValuesFromModel); // Нужно как-то сделать так, чтобы при вызове LoadSettings, изменение NumericUpDown1/2/3 не вызывало событие ValueChanged
             ModelHandler.Invoke(this, null);
+            ModelHandler += new System.EventHandler(this.UpdateValuesFromModel);
         }
-        public void changeA(int newA) // Разрешающее поведение
+        public void changeA(int newA, object sender) // Разрешающее поведение
         {
             if (newA >= 0 && newA <= 100)
             {
@@ -126,13 +132,13 @@ namespace OOP_Laba4._2
             }
             else if (newA < 0) { A = 0; }
             else { A = 100; }
-            ModelHandler.Invoke(this, null);
+            if (sender.GetType() != typeof(object)) { ModelHandler.Invoke(this, null); }
         }
-        public void changeB(int newB) 
+        public void changeB(int newB, object sender) 
         {
             if (newB >= 0 && newB <= 100)
             {
-                if (newB >= A && newB <= C) // Запрещающее поведение
+                if (newB >= A && newB <= C)
                 {
                     B = newB;
                 }
@@ -145,9 +151,9 @@ namespace OOP_Laba4._2
                     B = C;
                 }
             }
-            ModelHandler.Invoke(this, null);
+            if (sender.GetType() != typeof(object)) { ModelHandler.Invoke(this, null); }
         }
-        public void changeC(int newC)
+        public void changeC(int newC, object sender)
         {
             if (newC >= 0 && newC <= 100)
             {
@@ -161,7 +167,7 @@ namespace OOP_Laba4._2
             }
             else if (newC < 0) { C = 0; }
             else { C = 100; }
-            ModelHandler.Invoke(this, null);
+            if (sender.GetType() != typeof(object)) { ModelHandler.Invoke(this, null); }
         }
         public int getA() { return A; }
         public int getB() { return B; }

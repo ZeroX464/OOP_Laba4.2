@@ -20,7 +20,6 @@ namespace OOP_Laba4._2
             InitializeComponent();
 
             model = new Model();
-            model.form1 = this;
             model.ModelHandler += new System.EventHandler(this.UpdateValuesFromModel);
             model.LoadSettings();
             this.FormClosing += Form1Closing;
@@ -31,9 +30,13 @@ namespace OOP_Laba4._2
             textBox2.Text = model.getB().ToString();
             textBox3.Text = model.getC().ToString();
 
+            DisableValueChanged();
+
             numericUpDown1.Value = model.getA();
             numericUpDown2.Value = model.getB();
             numericUpDown3.Value = model.getC();
+
+            EnableValueChanged();
 
             trackBar1.Value = model.getA();
             trackBar2.Value = model.getB();
@@ -121,16 +124,13 @@ namespace OOP_Laba4._2
         private int B = 50;
         private int C = 100;
         public System.EventHandler ModelHandler;
-        public Form1 form1;
 
         public void LoadSettings() // Загрузка данных из настроек
         {
             A = Properties.Settings.Default.A;
             B = Properties.Settings.Default.B;
             C = Properties.Settings.Default.C;
-            form1.DisableValueChanged();
             ModelHandler.Invoke(this, null);
-            form1.EnableValueChanged();
         }
         public void changeA(int newA) // Разрешающее поведение
         {
